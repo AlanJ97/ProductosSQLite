@@ -35,9 +35,20 @@ class Product:
             conn.commit
         return result
     def get_products(self):
+        #cleaning table
+        records = self.tree.get_children()
+        for element in records:
+            self.tree.delete(element)
+        #quering data
         query = 'SELECT * FROM product ORDER BY name DESC'
-        db_rows = self.run_query(query)
-        print(db_rows)
+        db_rows = self.run_query(query)        
+        #getting data
+        for row in db_rows:
+            #filling data            
+            self.tree.insert('',0, text = row[1], values = row[2] )        
+    def add_product(self):
+    def validation(self):
+        return len(self.name.get) != 0 and len(self.price.get) != 0        
 if __name__ == '__main__':
     window = Tk()
     application = Product(window)
