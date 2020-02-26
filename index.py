@@ -20,7 +20,10 @@ class Product:
         self.price = Entry(frame)
         self.price.grid(row = 2, column = 1)
         #Button Add product
-        ttk.Button(frame, text = "Save product").grid(row = 3, columnspan = 2, sticky = W + E)
+        ttk.Button(frame, text = "Save product", command = self.add_product).grid(row = 3, columnspan = 2, sticky = W + E)
+        #Output messages
+        self.message = Label(text = "", fg = 'red')
+        self.message.grid(row = 3, column = 0, columnspan = 2, sticky = W + E)
         #Table
         self.tree = ttk.Treeview(height = 10, columns = 2)
         self.tree.grid(row = 4, column = 0, columnspan = 2)
@@ -46,9 +49,22 @@ class Product:
         for row in db_rows:
             #filling data            
             self.tree.insert('',0, text = row[1], values = row[2] )        
-    def add_product(self):
     def validation(self):
-        return len(self.name.get) != 0 and len(self.price.get) != 0        
+        return len(self.name.get()) != 0 and len(self.price.get()) != 0      
+    def add_product(self):
+        if self.validation():
+            query = 'INSERT INTO product VALUES(NULL, ?, ?)'
+            parameters = (self.name.get(), self.price.get())
+            self.run_query(query,parameters)
+            self.message['text'] = 'Product {} added succesfully'.format(self.name.get())
+            self.name.delete(0, END)
+            self.price.delete(0, END)
+
+        else:
+             self.message['text'] = 'Name and price are required. ERROR'
+            
+        self.get_products()
+     
 if __name__ == '__main__':
     window = Tk()
     application = Product(window)
