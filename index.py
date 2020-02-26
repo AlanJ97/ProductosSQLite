@@ -29,7 +29,11 @@ class Product:
         self.tree.grid(row = 4, column = 0, columnspan = 2)
         self.tree.heading('#0', text= 'Name', anchor = CENTER)
         self.tree.heading('#1', text = 'Price', anchor = CENTER)
-
+        #buttons delete and edit
+        ttk.Button(text  = 'DELETE', command = self.delete_product).grid(row = 5, column = 0, sticky = W +E)
+        ttk.Button(text  = 'EDIT').grid(row = 5, column = 1, sticky = W +E)
+        
+        #getting data at the beginninng
         self.get_products()
     def run_query(self, query, parameters = ()):
         with sqlite3.connect(self.db_name) as conn:
@@ -64,7 +68,20 @@ class Product:
              self.message['text'] = 'Name and price are required. ERROR'
             
         self.get_products()
-     
+    def delete_product(self):
+        self.message['text'] = ""
+        try:
+            self.tree.item(self.tree.selection())['text'][0]
+
+        except IndexError as e:
+            self.message['text'] = 'Please, select a record'
+            return
+        self.message['text'] = ""
+        name  = self.tree.item(self.tree.selection())['text']
+        query = 'DELETE FROM product WHERE name = ?'
+        self.run_query(query, (name,))
+        self.message['text'] = 'Record {} has been deleted successfully'.format(name)
+        self.get_products()
 if __name__ == '__main__':
     window = Tk()
     application = Product(window)
