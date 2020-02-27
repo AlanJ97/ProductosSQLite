@@ -31,7 +31,7 @@ class Product:
         self.tree.heading('#1', text = 'Price', anchor = CENTER)
         #buttons delete and edit
         ttk.Button(text  = 'DELETE', command = self.delete_product).grid(row = 5, column = 0, sticky = W +E)
-        ttk.Button(text  = 'EDIT').grid(row = 5, column = 1, sticky = W +E)
+        ttk.Button(text  = 'EDIT', command = self.edit_product).grid(row = 5, column = 1, sticky = W +E)
         
         #getting data at the beginninng
         self.get_products()
@@ -81,6 +81,42 @@ class Product:
         query = 'DELETE FROM product WHERE name = ?'
         self.run_query(query, (name,))
         self.message['text'] = 'Record {} has been deleted successfully'.format(name)
+        self.get_products()
+    def edit_product(self):
+        self.message['text'] = ''
+        try:
+            self.tree.item(self.tree.selection())['text'][0]
+
+        except IndexError as e:
+            self.message['text'] = 'Please, select a record'
+            return
+        name  =  self.tree.item(self.tree.selection())['text']
+        old_price = self.tree.item(self.tree.selection())['values'][0]
+        self.edit_wind = Toplevel()
+        self.edit_wind.title = "Edit product"
+       #old name
+        Label(self.edit_wind, text = 'Old name').grid(row = 0, column = 1)
+        Entry(self.edit_wind, textvariable = StringVar(self.edit_wind, value = name), state = 'readonly').grid(row=0 ,column= 2)
+       #new name
+        Label(self.edit_wind, text ='New name').grid(row = 1, column = 1)
+        new_name = Entry(self.edit_wind)
+        new_name.grid(row = 1, column = 2)
+        #Old price
+        Label(self.edit_wind, text = 'Old price').grid(row=2, column = 1)
+        Entry(self.edit_wind, textvariable = StringVar(self.edit_wind, value = old_price), state = 'readonly').grid(row= 2, column = 2)
+
+        #New price
+        Label(self.edit_wind, text = 'New price').grid(row = 3, column = 1)
+        new_price = Entry(self.edit_wind)
+        new_price.grid(row = 3, column = 2)
+        #button
+        Button(self.edit_wind, text = 'UPdate', command = lambda: self.edit_records(new_name.get(), name, new_price.get(), old_price)).grid(row = 4, column = 2, sticky = W)
+    def edit_records(self, new_name, name,  new_price, old_price):
+        query = 'UPDATE product SET name = ?, price = ? WHERE name = ? AND price = ? '
+        parameters = (new_name, new_price, name, old_price)
+        self.run_query(query, parameters)
+        self.edit_wind.destroy()
+        self.message['text'] ='Record {} updated succesfully'.format(name)
         self.get_products()
 if __name__ == '__main__':
     window = Tk()
